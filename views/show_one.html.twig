@@ -1,0 +1,75 @@
+{% set no_signed %}
+<span class="label label-danger">Запись не подписана</span>
+{% endset %}
+    {% if record.signedAt == null %}
+        <div class="alert alert-danger" role="alert">
+            <span class="sr-only">Error:</span>
+            <strong>Внимание!</strong> Данная запись не подписана, её нельзя использовать в качестве медицинского документа, т.к. её сожержимое может быть изменено
+        </div>
+    {% else %}
+        <div class="alert alert-success" role="alert">
+            Данная запись подписана
+        </div>
+    {% endif %}
+<table class="table table-hover">
+    {% if app.user == record.creatorId %}
+        <div class="alert alert-info" role="alert">
+            Ваша запись
+        </div>
+    {% endif %}
+    {#<tr>#}
+        {#<td>Идентификатор</td>#}
+        {#<td>{{ record.id }}</td>#}
+    {#</tr>#}
+    <tr>
+        <td>Ф.И.О пациента</td>
+        <td>{{ record.patientId.surname }} {{ record.patientId.forename }} {{ record.patientId.patronymic }}</td>
+    </tr>
+    <tr>
+        <td>Создатель / Специальность</td>
+        <td>
+            {{ record.creatorId.surname }} {{ record.creatorId.forename }} {{ record.creatorId.patronymic }}
+            <span class="label label-primary">{{ record.speciality }}</span>
+        </td>
+    </tr>
+    <tr>
+        <td>Тип</td>
+        <td>{{ record.category.name }}</td>
+    </tr>
+    <tr>
+        <td>Дата события</td>
+        <td>{{ record.createdAt|date("d.m.Y") }}</td>
+    </tr>
+    <tr>
+        <td>Автор</td>
+        <td>
+            {% if record.authorId != null %}
+                {{ record.authorId.surname }} {{ record.authorId.forename }} {{ record.authorId.patronymic }}
+                <span class="label label-primary">{{ record.speciality }}</span>
+            {% else %}
+                {{ no_signed }}
+            {% endif %}
+        </td>
+    </tr>
+    <tr>
+        <td>Дата подписания</td>
+        <td>{% if record.signedAt != null %}{{ record.signedAt|date("d.m.Y") }}{% else %}{{ no_signed }}{% endif %}</td>
+    </tr>
+    <tr>
+        <td>Текст</td>
+        <td>{{ record.text|raw }}</td>
+    </tr>
+    {% if record.attachments %}
+    <tr>
+        <td>Прикрепленные файлы</td>
+        <td>
+            {% for attachment in record.attachments %}
+                <p>
+                    {{ attachment.name }}
+                    <img class="img-responsive" src="{{ asset(attachment.path) }}" alt=""/>
+                </p>
+            {% endfor %}
+        </td>
+    </tr>
+    {% endif %}
+</table>
